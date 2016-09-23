@@ -1,0 +1,45 @@
+{
+  "name": "strapieno/str-place-gallery-api",
+  "homepage": "https://github.com/strapieno/str-place-gallery-api",
+  "require": {
+    "php": ">=5.5.0",
+    "zendframework/zendframework": "~2.5",
+    "zfcampus/zf-apigility-provider": "~1.0",
+    "zfcampus/zf-content-negotiation": "~1.0",
+    "zfcampus/zf-content-validation": "~1.0",
+    "zfcampus/zf-rpc": "~1.0",
+    "zfcampus/zf-rest": "~1.0",
+    "zfcampus/zf-versioning": "~1.0",
+    "zfcampus/zf-apigility-documentation": "~1.0",
+    "zfcampus/zf-configuration": "~1.0",
+    "zfcampus/zf-console": "~1.0",
+    "matryoshka-model/matryoshka": "0.8.*@dev",
+    "matryoshka-model/mongo-wrapper": "0.8.*@dev",
+    "matryoshka-model/zf2-matryoshka-module": "0.8.*@dev",
+    "matryoshka-model/zf-apigility-matryoshka": "dev-develop",
+    "strapieno/str-place-gallery-model" : "dev-develop"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.7",
+    "zendframework/zftool": "dev-master",
+    "robertboloc/zf2-components-list-generator": "dev-master",
+    "satooshi/php-coveralls": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "Strapieno\\PlaceGallery\\Api\\": "src/",
+      "Strapieno\\PlaceGallery\\ApiTest\\": "tests/"
+    },
+    "classmap": [
+      "./Module.php"
+    ]
+  },
+  "authors": [
+    {
+      "name": "Antonio Visalli",
+      "email": "antonino.visalli@gmail.com",
+      "homepage": "http://github.com/visa4"
+    }
+  ],
+  "minimum-stability": "dev"
+}

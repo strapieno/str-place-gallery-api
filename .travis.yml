@@ -1,0 +1,39 @@
+language: php
+
+php:
+  - 5.5
+  - 5.6
+  - 7.0
+  
+cache:
+  directories:
+  - "$HOME/.composer/cache"
+
+services:
+  - mongodb
+
+branches:
+  only:
+    - master
+    - develop
+
+install:
+  - composer self-update && composer --version
+  - composer update --ignore-platform-reqs --prefer-source
+
+before_script:
+ - mkdir -p build/coverage
+
+script:
+ - vendor/bin/phpunit
+
+after_script:
+ - php vendor/bin/coveralls
+
+notifications:
+  email: antonino.visalli@gmail.com
+  
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: 7
