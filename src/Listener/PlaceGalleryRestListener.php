@@ -1,5 +1,5 @@
 <?php
-namespace Strapieno\NightClubCover\Api\Listener;
+namespace Strapieno\PlaceGallery\Api\Listener;
 
 use ImgMan\Image\SrcAwareInterface;
 use Matryoshka\Model\Object\ActiveRecord\ActiveRecordInterface;
@@ -35,7 +35,7 @@ class PlaceGalleryRestListener implements ListenerAggregateInterface,
      */
     public function attach(EventManagerInterface $events)
     {
-        $this->listeners[] = $events->attach('update', [$this, 'onPostUpdate']);
+        $this->listeners[] = $events->attach('post', [$this, 'onPostUpdate']);
         $this->listeners[] = $events->attach('delete', [$this, 'onPostDelete']);
     }
 

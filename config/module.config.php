@@ -1,6 +1,5 @@
 <?php
 return [
-    // Config of nightclub_id in route exist
     'service_manager' => [
         'factories' => [
             'Strapieno\Utils\Listener\ListenerManager' => 'Strapieno\Utils\Listener\ListenerManagerFactory'
@@ -10,18 +9,6 @@ return [
         ],
         'aliases' => [
             'listenerManager' => 'Strapieno\Utils\Listener\ListenerManager'
-        ]
-    ],
-    // Register listener to listener manager
-    'service-listeners' => [
-        'invokables' => [
-            'Strapieno\PlaceGallery\Api\Listener\NightClubRestListener'
-                => 'Strapieno\PlaceGallery\Api\Listener\NightClubRestListener'
-        ]
-    ],
-    'attach-resource-listeners' => [
-        'Strapieno\PlaceGallery\Api\V1\Rest\Controller' => [
-            'Strapieno\PlaceGallery\Api\Listener\NightClubRestListener'
         ]
     ],
     'controllers' => [
@@ -40,7 +27,7 @@ return [
                             'gallery' => [
                                 'type' => 'Segment',
                                 'options' => [
-                                    'route' => '/gallery',
+                                    'route' => '/gallery[/:gallery_id]',
                                     'defaults' => [
                                         'controller' => 'Strapieno\PlaceGallery\Api\V1\Rest\Controller'
                                     ]
@@ -64,16 +51,20 @@ return [
             'service_name' => 'place-gallery',
             'listener' => 'Strapieno\PlaceGallery\Api\V1\Rest\ConnectedResource',
             'route_name' => 'api-rest/place/gallery',
-            'route_identifier_name' => 'nightclub_id',
+            'route_identifier_name' => 'gallery_id',
             'entity_http_methods' => [
                 0 => 'GET',
                 2 => 'PUT',
                 3 => 'DELETE'
             ],
+            'collection_http_methods' => [
+                0 => 'GET',
+                1 => 'POST',
+            ],
             'page_size' => 10,
             'page_size_param' => 'page_size',
             'collection_class' => 'Zend\Paginator\Paginator',
-            'entity_class' => 'Strapieno\PlaceGallery\Model\Entity\dEntity'
+            'entity_class' => 'Strapieno\PlaceGallery\Model\Entity\GalleryEntity'
         ]
     ],
     'zf-content-negotiation' => [
@@ -96,7 +87,7 @@ return [
             'Strapieno\PlaceGallery\Model\Entity\PlaceGallery' => [
                 'entity_identifier_name' => 'id',
                 'route_name' => 'api-rest/place/gallery',
-                'route_identifier_name' => 'nightclub_id',
+                'route_identifier_name' => 'gallery_id',
                 'hydrator' => 'Strapieno\Utils\Hydrator\ImageBase64Hydrator',
             ],
         ],
