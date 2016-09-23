@@ -38,12 +38,12 @@ return [
         'routes' => [
             'api-rest' => [
                 'child_routes' => [
-                    'nightclub' => [
+                    'place' => [
                         'child_routes' => [
-                            'cover' => [
+                            'gallery' => [
                                 'type' => 'Segment',
                                 'options' => [
-                                    'route' => '/cover',
+                                    'route' => '/gallery',
                                     'defaults' => [
                                         'controller' => 'Strapieno\PlaceGallery\Api\V1\Rest\Controller'
                                     ]
@@ -64,9 +64,9 @@ return [
     ],
     'zf-rest' => [
         'Strapieno\PlaceGallery\Api\V1\Rest\Controller' => [
-            'service_name' => 'nightclub-cover',
+            'service_name' => 'place-gallery',
             'listener' => 'Strapieno\PlaceGallery\Api\V1\Rest\ConnectedResource',
-            'route_name' => 'api-rest/nightclub/cover',
+            'route_name' => 'api-rest/place/gallery',
             'route_identifier_name' => 'nightclub_id',
             'entity_http_methods' => [
                 0 => 'GET',
@@ -76,7 +76,7 @@ return [
             'page_size' => 10,
             'page_size_param' => 'page_size',
             'collection_class' => 'Zend\Paginator\Paginator',
-            'entity_class' => 'Strapieno\PlaceGallery\Model\Entity\CoverEntity'
+            'entity_class' => 'Strapieno\PlaceGallery\Model\Entity\dEntity'
         ]
     ],
     'zf-content-negotiation' => [
@@ -96,9 +96,9 @@ return [
     'zf-hal' => [
         // map each class (by name) to their metadata mappings
         'metadata_map' => [
-            'Strapieno\PlaceGallery\Model\Entity\CoverEntity' => [
+            'Strapieno\PlaceGallery\Model\Entity\PlaceGallery' => [
                 'entity_identifier_name' => 'id',
-                'route_name' => 'api-rest/nightclub/cover',
+                'route_name' => 'api-rest/place/gallery',
                 'route_identifier_name' => 'nightclub_id',
                 'hydrator' => 'Strapieno\Utils\Hydrator\ImageBase64Hydrator',
             ],
