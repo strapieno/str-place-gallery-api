@@ -11,6 +11,7 @@ use Strapieno\NightClubCover\Model\Entity\CoverAwareInterface;
 use Strapieno\Place\Model\PlaceModelAwareInterface;
 use Strapieno\Place\Model\PlaceModelAwareTrait;
 use Strapieno\User\Model\Entity\UserInterface;
+use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\ListenerAggregateTrait;
