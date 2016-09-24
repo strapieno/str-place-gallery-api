@@ -8,6 +8,8 @@ use Matryoshka\Model\Wrapper\Mongo\Criteria\ActiveRecord\ActiveRecordCriteria;
 use Strapieno\NightClub\Model\NightClubModelAwareInterface;
 use Strapieno\NightClub\Model\NightClubModelAwareTrait;
 use Strapieno\NightClubCover\Model\Entity\CoverAwareInterface;
+use Strapieno\Place\Model\PlaceModelAwareInterface;
+use Strapieno\Place\Model\PlaceModelAwareTrait;
 use Strapieno\User\Model\Entity\UserInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -24,43 +26,43 @@ use ZF\Rest\ResourceEvent;
  */
 class PlaceGalleryRestListener implements ListenerAggregateInterface,
     ServiceLocatorAwareInterface,
-    NightClubModelAwareInterface
+    PlaceModelAwareInterface
 {
     use ListenerAggregateTrait;
     use ServiceLocatorAwareTrait;
-    use NightClubModelAwareTrait;
+    use PlaceModelAwareTrait;
 
     /**
      * {@inheritdoc}
      */
     public function attach(EventManagerInterface $events)
     {
-        $this->listeners[] = $events->attach('post', [$this, 'onPostUpdate']);
+        $this->listeners[] = $events->attach('create', [$this, 'onPostCreate']);
         $this->listeners[] = $events->attach('delete', [$this, 'onPostDelete']);
     }
 
     /**
-     * @param ResourceEvent $e
+     * @param Event $e
      * @return mixed
      */
-    public function onPostUpdate(ResourceEvent $e)
+    public function onPostCreate(Event $e)
     {
         $serviceLocator = $this->getServiceLocator();
         if ($serviceLocator instanceof AbstractPluginManager) {
             $serviceLocator = $serviceLocator->getServiceLocator();
         }
+        /** @var $application \Zend\Mvc\Application */
+        $application = $serviceLocator->get('Application');
 
-        $id  = $e->getParam('id');
-        $nightClub = $this->getNightClubFromId($id);
+        $placeId = $application->getMvcEvent()->getRouteMatch()->getParam('place_id');
+        $place = $this->getPlaceModelService()->find((new ActiveRecordCriteria())->setId($placeId))->current();
+
+
+        var_dump('TEST');
+        die();
 
         $image = $e->getParam('image');
 
-        if ($nightClub instanceof CoverAwareInterface && $nightClub instanceof ActiveRecordInterface) {
-
-            $nightClub->setCover($this->getUrlFromImage($image, $serviceLocator));
-            $nightClub->save();
-            $e->setParam('nightClub', $nightClub);
-        }
 
         return $image;
     }

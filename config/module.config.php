@@ -18,6 +18,19 @@ return [
             ]
         ],
     ],
+    'service-listeners' => [
+        'initializers' => [
+            'Strapieno\Place\Model\PlaceModelInitializer'
+        ],
+        'invokables' => [
+            'Strapieno\PlaceGallery\Api\Listener\PlaceGalleryRestListener' => 'Strapieno\PlaceGallery\Api\Listener\PlaceGalleryRestListener',
+        ]
+    ],
+    'attach-resource-listeners' => [
+        'Strapieno\PlaceGallery\Api\V1\Rest\Controller' => [
+            'Strapieno\PlaceGallery\Api\Listener\PlaceGalleryRestListener'
+        ]
+    ],
     'router' => [
         'routes' => [
             'api-rest' => [
