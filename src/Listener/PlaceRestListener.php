@@ -159,7 +159,7 @@ class PlaceRestListener implements ListenerAggregateInterface,
         /** @var $router RouteInterface */
         $router = $serviceLocator->get('Router');
         $url = $router->assemble(
-            ['place_id' => $image->getId(), 'gallery_id' => $entity->getId()],
+            ['place_id' => $entity->getId(), 'gallery_id' => $image->getId()],
             ['name' => 'api-rest/place/gallery', 'force_canonical' => true]
         );
 
