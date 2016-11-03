@@ -23,12 +23,12 @@ return [
             'Strapieno\Place\Model\PlaceModelInitializer'
         ],
         'invokables' => [
-            'Strapieno\PlaceGallery\Api\Listener\PlaceGalleryRestListener' => 'Strapieno\PlaceGallery\Api\Listener\PlaceGalleryRestListener',
+            'Strapieno\PlaceGallery\Api\Listener\PlaceRestListener' => 'Strapieno\PlaceGallery\Api\Listener\PlaceRestListener',
         ]
     ],
     'attach-resource-listeners' => [
         'Strapieno\PlaceGallery\Api\V1\Rest\Controller' => [
-            'Strapieno\PlaceGallery\Api\Listener\PlaceGalleryRestListener'
+            'Strapieno\PlaceGallery\Api\Listener\PlaceRestListener'
         ]
     ],
     'router' => [

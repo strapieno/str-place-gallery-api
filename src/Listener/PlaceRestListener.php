@@ -11,6 +11,7 @@ use Strapieno\NightClubCover\Model\Entity\CoverAwareInterface;
 use Strapieno\Place\Model\PlaceModelAwareInterface;
 use Strapieno\Place\Model\PlaceModelAwareTrait;
 use Strapieno\User\Model\Entity\UserInterface;
+use Strapieno\Utils\Model\Object\CollectionAwareInterface;
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -23,9 +24,9 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use ZF\Rest\ResourceEvent;
 
 /**
- * Class NightClubRestListener
+ * Class PlaceRestListener
  */
-class PlaceGalleryRestListener implements ListenerAggregateInterface,
+class PlaceRestListener implements ListenerAggregateInterface,
     ServiceLocatorAwareInterface,
     PlaceModelAwareInterface
 {
@@ -58,12 +59,24 @@ class PlaceGalleryRestListener implements ListenerAggregateInterface,
         $placeId = $application->getMvcEvent()->getRouteMatch()->getParam('place_id');
         $place = $this->getPlaceModelService()->find((new ActiveRecordCriteria())->setId($placeId))->current();
 
-
-        var_dump('TEST');
-        die();
-
         $image = $e->getParam('image');
 
+
+        if ($place instanceof CollectionAwareInterface) {
+
+            $reference = new GalleryReference();
+            $reference->setId($image->getId());
+
+            $media = new Media();
+            $media->setEmbedUrl($this->getUrlFromImage($image, $serviceLocator));
+            $media->setGalleryReference($reference);
+
+            $medias = $place->getCollection();
+            if (!$medias->has($media)) {
+                $medias->append($media);
+                $place->save();
+            }
+        }
 
         return $image;
     }
@@ -74,18 +87,46 @@ class PlaceGalleryRestListener implements ListenerAggregateInterface,
      */
     public function onPostDelete(ResourceEvent $e)
     {
+        $serviceLocator = $this->getServiceLocator();
+        if ($serviceLocator instanceof AbstractPluginManager) {
+            $serviceLocator = $serviceLocator->getServiceLocator();
+        }
+        /** @var $application \Zend\Mvc\Application */
+        $application = $serviceLocator->get('Application');
 
-        $id  = $e->getParam('id');
-        $nightClub = $this->getNightClubFromId($id);
+        $placeId = $application->getMvcEvent()->getRouteMatch()->getParam('place_id');
+        $place = $this->getPlaceModelService()->find((new ActiveRecordCriteria())->setId($placeId))->current();
 
-        if ($nightClub instanceof CoverAwareInterface && $nightClub instanceof ActiveRecordInterface) {
+        $image = $e->getParam('image');
 
-            $nightClub->setCover(null);
-            $nightClub->save();
-            $e->setParam('nightClub', $nightClub);
+
+        if ($place instanceof CollectionAwareInterface) {
+
+            $reference = new GalleryReference();
+            $reference->setId($image->getId());
+
+            $media = new Media();
+            $media->setGalleryReference($reference);
+
+            $medias = $place->getCollection();
+            if ($medias->remove($media)) {
+                $place->save();
+            }
         }
 
         return true;
+    }
+
+    /**
+     * @return ServiceLocatorInterface
+     */
+    public function getServiceLocator()
+    {
+        $serviceLocator = $this->getServiceLocator();
+        if ($serviceLocator instanceof AbstractPluginManager) {
+            $serviceLocator = $serviceLocator->getServiceLocator();
+        }
+        return $serviceLocator;
     }
 
     /**
@@ -114,8 +155,8 @@ class PlaceGalleryRestListener implements ListenerAggregateInterface,
         /** @var $router RouteInterface */
         $router = $serviceLocator->get('Router');
         $url = $router->assemble(
-            ['nightclub_id' => $image->getId()],
-            ['name' => 'api-rest/nightclub/cover', 'force_canonical' => true]
+            ['place_id' => $image->getId()],
+            ['name' => 'api-rest/place/gallery', 'force_canonical' => true]
         );
 
         return $url . '?lastUpdate=' . $now->getTimestamp();
