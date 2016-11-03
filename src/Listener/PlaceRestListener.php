@@ -10,8 +10,10 @@ use Strapieno\NightClub\Model\NightClubModelAwareTrait;
 use Strapieno\NightClubCover\Model\Entity\CoverAwareInterface;
 use Strapieno\Place\Model\PlaceModelAwareInterface;
 use Strapieno\Place\Model\PlaceModelAwareTrait;
+use Strapieno\PlaceGallery\Model\Entity\Reference\GalleryReference;
 use Strapieno\User\Model\Entity\UserInterface;
 use Strapieno\Utils\Model\Object\CollectionAwareInterface;
+use Strapieno\Utils\Model\Object\MediaReference\MediaReference;
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -62,14 +64,14 @@ class PlaceRestListener implements ListenerAggregateInterface,
         $image = $e->getParam('image');
 
 
-        if ($place instanceof CollectionAwareInterface) {
+        if ($place instanceof CollectionAwareInterface && $place instanceof ActiveRecordInterface) {
 
             $reference = new GalleryReference();
             $reference->setId($image->getId());
 
-            $media = new Media();
+            $media = new MediaReference();
             $media->setEmbedUrl($this->getUrlFromImage($image, $serviceLocator));
-            $media->setGalleryReference($reference);
+            $media->setEntityReference($reference);
 
             $medias = $place->getCollection();
             if (!$medias->has($media)) {
@@ -100,13 +102,13 @@ class PlaceRestListener implements ListenerAggregateInterface,
         $image = $e->getParam('image');
 
 
-        if ($place instanceof CollectionAwareInterface) {
+        if ($place instanceof CollectionAwareInterface && $place instanceof ActiveRecordInterface) {
 
             $reference = new GalleryReference();
             $reference->setId($image->getId());
 
-            $media = new Media();
-            $media->setGalleryReference($reference);
+            $media = new MediaReference();
+            $media->setEntityReference($reference);
 
             $medias = $place->getCollection();
             if ($medias->remove($media)) {
@@ -122,11 +124,10 @@ class PlaceRestListener implements ListenerAggregateInterface,
      */
     public function getServiceLocator()
     {
-        $serviceLocator = $this->getServiceLocator();
-        if ($serviceLocator instanceof AbstractPluginManager) {
-            $serviceLocator = $serviceLocator->getServiceLocator();
+        if ($this->serviceLocator instanceof AbstractPluginManager) {
+            $this->serviceLocator = $this->serviceLocator->getServiceLocator();
         }
-        return $serviceLocator;
+        return $this->serviceLocator;
     }
 
     /**
