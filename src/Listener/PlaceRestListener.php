@@ -70,7 +70,7 @@ class PlaceRestListener implements ListenerAggregateInterface,
             $reference->setId($image->getId());
 
             $media = new MediaReference();
-            $media->setEmbedUrl($this->getUrlFromImage($image, $serviceLocator));
+            $media->setEmbedUrl($this->getUrlFromImage($place, $image, $serviceLocator));
             $media->setEntityReference($reference);
 
             $medias = $place->getCollection();
@@ -145,7 +145,10 @@ class PlaceRestListener implements ListenerAggregateInterface,
      * @param $serviceLocator
      * @return string
      */
-    protected function getUrlFromImage(IdentityAwareInterface $image, ServiceLocatorInterface $serviceLocator)
+    protected function getUrlFromImage(
+        ActiveRecordInterface $entity,
+        IdentityAwareInterface $image,
+        ServiceLocatorInterface $serviceLocator)
     {
         $now = new \DateTime();
         if ($image instanceof SrcAwareInterface && $image->getSrc()) {
@@ -156,7 +159,7 @@ class PlaceRestListener implements ListenerAggregateInterface,
         /** @var $router RouteInterface */
         $router = $serviceLocator->get('Router');
         $url = $router->assemble(
-            ['place_id' => $image->getId()],
+            ['place_id' => $image->getId(), 'gallery_id' => $entity->getId()],
             ['name' => 'api-rest/place/gallery', 'force_canonical' => true]
         );
 
