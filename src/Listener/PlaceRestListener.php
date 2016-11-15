@@ -42,6 +42,7 @@ class PlaceRestListener implements ListenerAggregateInterface,
     public function attach(EventManagerInterface $events)
     {
         $this->listeners[] = $events->attach('create', [$this, 'onPostCreate']);
+        $this->listeners[] = $events->attach('update', [$this, 'onPostUpdate']);
         $this->listeners[] = $events->attach('delete', [$this, 'onPostDelete']);
     }
 
@@ -80,6 +81,38 @@ class PlaceRestListener implements ListenerAggregateInterface,
             }
         }
 
+        return $image;
+    }
+
+    public function onPostUpdate(Event $e)
+    {
+        $serviceLocator = $this->getServiceLocator();
+        if ($serviceLocator instanceof AbstractPluginManager) {
+            $serviceLocator = $serviceLocator->getServiceLocator();
+        }
+        /** @var $application \Zend\Mvc\Application */
+        $application = $serviceLocator->get('Application');
+
+        $placeId = $application->getMvcEvent()->getRouteMatch()->getParam('place_id');
+        $place = $this->getPlaceModelService()->find((new ActiveRecordCriteria())->setId($placeId))->current();
+
+        $image = $e->getParam('image');
+
+        if ($place instanceof CollectionAwareInterface && $place instanceof ActiveRecordInterface) {
+
+
+            $medias = $place->getCollection();
+            /** @var $media RefIdentityInterface */
+            foreach ($medias as $media) {
+
+                /** @var $media MediaReference */
+                if ($image->getId() == $media->getRefIdentity()) {
+                    $media->setEmbedUrl($this->getUrlFromImage($place, $image, $serviceLocator));
+                    $place->save();
+                    break;
+                }
+            }
+        }
         return $image;
     }
 
