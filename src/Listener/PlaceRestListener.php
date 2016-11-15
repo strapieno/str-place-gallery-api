@@ -67,12 +67,7 @@ class PlaceRestListener implements ListenerAggregateInterface,
 
         if ($place instanceof CollectionAwareInterface && $place instanceof ActiveRecordInterface) {
 
-            $reference = new GalleryReference();
-            $reference->setId($image->getId());
-
-            $media = new MediaReference();
-            $media->setEmbedUrl($this->getUrlFromImage($place, $image, $serviceLocator));
-            $media->setEntityReference($reference);
+            $media = $this->generateMedia($image, $place, $serviceLocator, true);
 
             $medias = $place->getCollection();
             if (!$medias->has($media)) {
@@ -101,15 +96,21 @@ class PlaceRestListener implements ListenerAggregateInterface,
         if ($place instanceof CollectionAwareInterface && $place instanceof ActiveRecordInterface) {
 
 
-            $medias = $place->getCollection();
-            /** @var $media RefIdentityInterface */
-            foreach ($medias as $media) {
+            $media = $this->generateMedia($image, $place, $serviceLocator, true);
 
-                /** @var $media MediaReference */
-                if ($image->getId() == $media->getRefIdentity()) {
-                    $media->setEmbedUrl($this->getUrlFromImage($place, $image, $serviceLocator));
-                    $place->save();
-                    break;
+            $medias = $place->getCollection();
+            if (!$medias->has($media)) {
+                $medias->append($media);
+                $place->save();
+            } else {
+                foreach ($medias as $media) {
+
+                    /** @var $media MediaReference */
+                    if ($image->getId() == $media->getRefIdentity()) {
+                        $media->setEmbedUrl($this->getUrlFromImage($place, $image, $serviceLocator));
+                        $place->save();
+                        break;
+                    }
                 }
             }
         }
@@ -132,16 +133,9 @@ class PlaceRestListener implements ListenerAggregateInterface,
         $placeId = $application->getMvcEvent()->getRouteMatch()->getParam('place_id');
         $place = $this->getPlaceModelService()->find((new ActiveRecordCriteria())->setId($placeId))->current();
 
-        $image = $e->getParam('image');
-
-
         if ($place instanceof CollectionAwareInterface && $place instanceof ActiveRecordInterface) {
 
-            $reference = new GalleryReference();
-            $reference->setId($image->getId());
-
-            $media = new MediaReference();
-            $media->setEntityReference($reference);
+            $media = $this->generateMedia($e->getParam('id'), $place, $serviceLocator);
 
             $medias = $place->getCollection();
             if ($medias->remove($media)) {
@@ -153,6 +147,29 @@ class PlaceRestListener implements ListenerAggregateInterface,
     }
 
     /**
+     * @param $image
+     * @param ActiveRecordInterface $entity
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param bool $EmbedUrl
+     * @return $this
+     */
+    protected function generateMedia(
+        $image,
+        ActiveRecordInterface $entity,
+        ServiceLocatorInterface $serviceLocator,
+        $embedUrl = false)
+    {
+        $reference = new GalleryReference();
+        $reference->setId(($image instanceof IdentityAwareInterface ? $image->getId() : $image));
+
+        $media = new MediaReference();
+        if ($image instanceof IdentityAwareInterface && $embedUrl) {
+            $media->setEmbedUrl($this->getUrlFromImage($entity, $image, $serviceLocator));
+        }
+        return $media->setEntityReference($reference);
+    }
+
+    /**
      * @return ServiceLocatorInterface
      */
     public function getServiceLocator()
@@ -161,16 +178,6 @@ class PlaceRestListener implements ListenerAggregateInterface,
             $this->serviceLocator = $this->serviceLocator->getServiceLocator();
         }
         return $this->serviceLocator;
-    }
-
-    /**
-     * @param $id
-     * @return UserInterface|null
-     */
-    protected function getNightClubFromId($id)
-    {
-        return $this->getNightClubModelService()->find((new ActiveRecordCriteria())->setId($id))->current();
-
     }
 
     /**
