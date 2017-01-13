@@ -97,7 +97,7 @@ return [
     'zf-hal' => [
         // map each class (by name) to their metadata mappings
         'metadata_map' => [
-            'Strapieno\PlaceGallery\Model\Entity\PlaceGallery' => [
+            'Strapieno\PlaceGallery\Model\Entity\GalleryEntity' => [
                 'entity_identifier_name' => 'id',
                 'route_name' => 'api-rest/place/gallery',
                 'route_identifier_name' => 'gallery_id',
